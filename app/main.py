@@ -1,38 +1,43 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 
-from app.api.v1.router import api_router
-from app.core.config import settings
-from app.db.mongodb import connect_to_mongo, close_mongo_connection
+from app.database.session import connect_to_mongo, close_mongo_connection
+from app.api.api import api_router
+
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     # Connect to MongoDB on startup
+#     await connect_to_mongo()
+#     yield
+#     # Close MongoDB connection on shutdown
+#     await close_mongo_connection()
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    description=settings.PROJECT_DESCRIPTION,
-    version=settings.PROJECT_VERSION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    title="SIGMA API",
+    description="Backend API for SIGMA Mobile Application",
+    version="1.0.0",
+    # lifespan=lifespan
 )
 
-# Set up CORS
+# Add CORS middleware for mobile app connectivity
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],  # In production, specify your mobile app's domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(api_router, prefix=settings.API_V1_STR)
+# Mount static files directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Set up event handlers
-@app.on_event("startup")
-async def startup_db_client():
-    await connect_to_mongo()
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    await close_mongo_connection()
+# Include API router
+app.include_router(api_router, prefix="/api")
 
 @app.get("/")
-async def root():
-    return {"message": "Welcome to SIGMA API. See /docs for documentation."}
+def welcome():
+    return {"message": "SIGMA API BACKEND"}
+
+

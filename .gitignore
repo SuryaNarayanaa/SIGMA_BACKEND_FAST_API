@@ -1,3 +1,16 @@
+# Environment variables
+/.env
+
+# Virtual environments
+/.venv
+/venv
+
+# Python cache files
+**/__pycache__/
+
+#logs
+logs
+
 # Environment files
 .env
 .venv
