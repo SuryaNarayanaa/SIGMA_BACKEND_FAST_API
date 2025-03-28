@@ -1,0 +1,54 @@
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Static files
+static/images/*
+!static/images/.gitkeep
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Exclude large media files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.svg
+# Keep these files in the static directory
+!static/**/*.jpg
+!static/**/*.jpeg
+!static/**/*.png
+!static/**/*.gif
+!static/**/*.svg

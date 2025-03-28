@@ -1,0 +1,21 @@
+# Core FastAPI requirements (already present)
+fastapi>=0.104.0
+uvicorn>=0.23.2
+motor>=3.3.1
+pydantic>=2.0.3
+pydantic-settings>=2.0.3
+python-jose>=3.3.0
+passlib>=1.7.4
+python-multipart>=0.0.6
+email-validator>=2.1.0
+pytest>=7.4.3
+httpx>=0.25.0
+pytest-asyncio>=0.21.1
+
+# Additional requirements from Flask project
+python-dotenv>=1.0.1
+opencv-python-headless
+requests>=2.31.0
+pytz>=2024.1
+reportlab>=4.0.0
+matplotlib>=3.8.0
