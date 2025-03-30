@@ -16,7 +16,7 @@ from motor.motor_asyncio import  AsyncIOMotorDatabase
 
 @client_router.post("/reset_password", response_class=JSONResponse, tags=["Password Management"])
 async def client_reset_password(input_data: ClientResetPasswordReqeust , db: AsyncIOMotorDatabase = Depends(get_db) ):
-    id = input_data.id
+    id = input_data.id.lower()
     old_password = input_data.old_password
     new_password = input_data.new_password
 
@@ -55,7 +55,7 @@ async def client_reset_password(input_data: ClientResetPasswordReqeust , db: Asy
 
 @client_router.post("/forgot_password", response_class=JSONResponse, tags=["Password Management"])
 async def client_forgot_password(input_data: ClientForgotPasswordRequest , db: AsyncIOMotorDatabase = Depends(get_db) ):
-    id  =input_data.id
+    id  =input_data.id.lower()
     if not id:
         return JSONResponse(
             status_code=400,
