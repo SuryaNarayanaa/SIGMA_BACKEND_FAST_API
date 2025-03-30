@@ -14,7 +14,7 @@ from app.utils.password_utils import get_hash
 from motor.motor_asyncio import  AsyncIOMotorDatabase
 
 
-@client_router.post("/reset_password", response_class=JSONResponse)
+@client_router.post("/reset_password", response_class=JSONResponse, tags=["Password Management"])
 async def client_reset_password(input_data: ClientResetPasswordReqeust , db: AsyncIOMotorDatabase = Depends(get_db) ):
     id = input_data.id
     old_password = input_data.old_password
@@ -53,7 +53,7 @@ async def client_reset_password(input_data: ClientResetPasswordReqeust , db: Asy
         status_code=200, content={"message": "Password reset successfully"}
     )
 
-@client_router.post("/forgot_password", response_class=JSONResponse)
+@client_router.post("/forgot_password", response_class=JSONResponse, tags=["Password Management"])
 async def client_forgot_password(input_data: ClientForgotPasswordRequest , db: AsyncIOMotorDatabase = Depends(get_db) ):
     id  =input_data.id
     if not id:
@@ -90,7 +90,7 @@ async def client_forgot_password(input_data: ClientForgotPasswordRequest , db: A
 
     return JSONResponse(status_code=200, content={"message": "Please check your e-mail to reset your password."})
 
-@client_router.get("/reset/{reset_key}" , response_class=JSONResponse)
+@client_router.get("/reset/{reset_key}" , response_class=JSONResponse, tags=["Password Management"])
 async def client_reset_password_page( reset_key: str, db: AsyncIOMotorDatabase = Depends(get_db) ):
     
     user = await db.users.find_one({"reset_key": reset_key})
@@ -99,7 +99,7 @@ async def client_reset_password_page( reset_key: str, db: AsyncIOMotorDatabase =
     
     return render_template("reset_password.html", reset_key=reset_key)
 
-@client_router.post("/forgot_password/reset" , response_class= JSONResponse)
+@client_router.post("/forgot_password/reset" , response_class= JSONResponse, tags=["Password Management"])
 async def client_forgot_password_reset(input_data: ClientForgotPasswordResetRequest,  db: AsyncIOMotorDatabase = Depends(get_db) ):
     reset_key = input_data.reset_key
     new_password = input_data.new_password
@@ -119,7 +119,7 @@ async def client_forgot_password_reset(input_data: ClientForgotPasswordResetRequ
 
     return JSONResponse(status_code=200, content={"message": "Password reset successfully"})
 
-@client_router.post("/update_password" , response_class= JSONResponse)
+@client_router.post("/update_password" , response_class= JSONResponse, tags=["Password Management"])
 async def client_update_password(reset_key: str = Form(...), new_password: str = Form(...),  db: AsyncIOMotorDatabase = Depends(get_db) ):
     if not reset_key:
         return JSONResponse(
@@ -146,5 +146,3 @@ async def client_update_password(reset_key: str = Form(...), new_password: str =
         return JSONResponse(status_code=400, content={"message": "Failed to update password"})
 
     return JSONResponse(status_code=200, content={"message": "Password updated successfully"})
-
-

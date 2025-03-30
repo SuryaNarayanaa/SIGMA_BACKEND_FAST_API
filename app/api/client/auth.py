@@ -14,7 +14,7 @@ from motor.motor_asyncio import  AsyncIOMotorDatabase
 from app.schemas.client.authSchema import ClientRegisterRequest, ClientLoginRequest
 
 
-@client_router.post("/register" ,response_class=JSONResponse)
+@client_router.post("/register" ,response_class=JSONResponse, tags=["Registration & Authentication"])
 async def client_register(input_data: ClientRegisterRequest , db :AsyncIOMotorDatabase = Depends(get_db)):
 
     name = input_data.name
@@ -70,7 +70,7 @@ async def client_register(input_data: ClientRegisterRequest , db :AsyncIOMotorDa
         status_code=201,
     )
 
-@client_router.get("/confirm/{confirm_key}", response_class=JSONResponse)
+@client_router.get("/confirm/{confirm_key}", response_class=JSONResponse, tags=["Registration & Authentication"])
 async def client_confirm_email(confirm_key: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     user = await db.users.find_one({"confkey": confirm_key})
 
@@ -90,7 +90,7 @@ async def client_confirm_email(confirm_key: str, db: AsyncIOMotorDatabase = Depe
         status_code=200
     )
 
-@client_router.post("/login" , response_class=JSONResponse )
+@client_router.post("/login" , response_class=JSONResponse, tags=["Registration & Authentication"] )
 async def client_login(input_data: ClientLoginRequest , db: AsyncIOMotorDatabase = Depends(get_db)):
     id = input_data.id
     password = input_data.password
@@ -119,6 +119,3 @@ async def client_login(input_data: ClientLoginRequest , db: AsyncIOMotorDatabase
     user.pop("_id", None)
 
     return JSONResponse({"message": "Login successful", "token": access_token, "user": user}, status_code=200)
-
-
-
