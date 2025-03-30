@@ -60,6 +60,11 @@ class Settings(BaseSettings):
     # JWT access token expiration (default is 1 day)
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(days=1)
 
+    ALGORITHM :str
+
+    BASE_URL :str = "https://sigma-api-r7ao.onrender.com"
+
+
     class Config:
         # Specify the environment file to load variables from
         env_file = ".env"
