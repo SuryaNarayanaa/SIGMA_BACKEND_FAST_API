@@ -1,18 +1,18 @@
 import uuid
 from fastapi import Depends
-from motor.motor_asyncio import  AsyncIOMotorDatabase
 from fastapi.responses import JSONResponse
 
+from app.config import settings
 from app.api.client import client_router
 from app.database.session import get_db
+
 from app.utils.password_utils import get_hash
 from app.utils.email_utils import sendmail
-
-from app.config import settings
-from app.schemas.client.authSchema import ClientRegisterRequest, ClientLoginRequest
 from app.utils.auth_utils import create_access_token
 
-BASE_URL = settings.BASE_URL
+from motor.motor_asyncio import  AsyncIOMotorDatabase
+from app.schemas.client.authSchema import ClientRegisterRequest, ClientLoginRequest
+
 
 @client_router.post("/register" ,response_class=JSONResponse)
 async def client_register(input_data: ClientRegisterRequest , db :AsyncIOMotorDatabase = Depends(get_db)):
@@ -36,7 +36,7 @@ async def client_register(input_data: ClientRegisterRequest , db :AsyncIOMotorDa
     hashed_password = get_hash(password)
     confirm_key = str(uuid.uuid4()).split("-")[0].upper()
 
-    confirmation_link = f"{BASE_URL}/client/confirm/{confirm_key}"
+    confirmation_link = f"{settings.BASE_URL}/client/confirm/{confirm_key}"
     sendmail(
         mail_met={"type": "welcome"},
         receiver=f"{id}@psgtech.ac.in",
@@ -97,7 +97,7 @@ async def client_login(input_data: ClientLoginRequest , db: AsyncIOMotorDatabase
     if not id:
         return JSONResponse({"message": "ID is required"},status_code=400)
     if not password:
-        return JSONResponse({"message": "password is required"},status_code=400)
+        return JSONResponse({"message": "Password is required"},status_code=400)
     
     user = await db.users.find_one({"id": id})
 
