@@ -20,7 +20,7 @@ async def connect_to_mongo():
     # Connect to the default database as specified in the MONGO_URI
     Database.db = Database.client.get_default_database()
     logger.info("Connected to MongoDB Atlas.")
-    # await list_all_collections()
+    await list_all_collections()
 
 
 async def close_mongo_connection():

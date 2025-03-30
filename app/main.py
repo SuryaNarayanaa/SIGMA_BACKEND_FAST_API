@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 
 from app.database.session import connect_to_mongo, close_mongo_connection
-from app.api.api import api_router
+from app.api.api import router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,7 +38,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # Include API router
-app.include_router(api_router)
+app.include_router(router)
 
 @app.get("/")
 def welcome():
