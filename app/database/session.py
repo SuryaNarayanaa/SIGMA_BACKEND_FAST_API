@@ -5,6 +5,14 @@ class Database:
     client: AsyncIOMotorClient = None
     db = None
 
+async def list_all_collections():
+    """List all collections in the database."""
+    if Database.db is None:
+        raise Exception("Database connection is not established.")
+    collections = await Database.db.list_collection_names()
+    logger.info("Collections in database: %s", collections)
+    return collections
+
 async def connect_to_mongo():
     """Create database connection."""
     logger.info("Connecting to MongoDB Atlas...")
@@ -12,6 +20,8 @@ async def connect_to_mongo():
     # Connect to the default database as specified in the MONGO_URI
     Database.db = Database.client.get_default_database()
     logger.info("Connected to MongoDB Atlas.")
+    # await list_all_collections()
+
 
 async def close_mongo_connection():
     """Close database connection."""

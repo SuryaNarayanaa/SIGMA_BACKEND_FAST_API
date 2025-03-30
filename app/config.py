@@ -1,8 +1,8 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-
 from pydantic_settings import BaseSettings
+from datetime import timedelta
 
 # Ensure the logs directory exists
 LOG_DIR = "logs"
@@ -40,6 +40,7 @@ class Settings(BaseSettings):
         - JWT_SECRET_KEY: Secret key for JWT token signing.
         - EMAILID: Email ID for notifications or communications.
         - EMAILPS: Email password associated with the email ID.
+        - JWT_ACCESS_TOKEN_EXPIRES: Expiration time for JWT access tokens.
     """
     # MongoDB connection URI (includes database name)
     MONGO_URI: str
@@ -55,6 +56,9 @@ class Settings(BaseSettings):
 
     # Email password associated with the email ID
     EMAILPS: str
+
+    # JWT access token expiration (default is 1 day)
+    JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(days=1)
 
     class Config:
         # Specify the environment file to load variables from
