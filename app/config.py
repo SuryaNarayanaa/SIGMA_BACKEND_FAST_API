@@ -26,7 +26,6 @@ logging.basicConfig(
 # Create a logger instance
 logger = logging.getLogger("app_logger")
 
-
 # Settings class that inherits from BaseSettings for environment variable configuration
 class Settings(BaseSettings):
     """
@@ -34,27 +33,28 @@ class Settings(BaseSettings):
 
     Inherits from:
         BaseSettings (pydantic_settings.BaseSettings): Pydantic BaseSettings class for environment variable management.
+
+    Configuration:
+        - MONGO_URI: Complete MongoDB connection URI (includes database name).
+        - SECRET_KEY: Secret key for general signing.
+        - JWT_SECRET_KEY: Secret key for JWT token signing.
+        - EMAILID: Email ID for notifications or communications.
+        - EMAILPS: Email password associated with the email ID.
     """
-    # MongoDB connection URI
-    MONGODB_URI: str
-    
-    # MongoDB database name
-    DB_NAME: str
-    
-    # Secret key for JWT token signing
+    # MongoDB connection URI (includes database name)
+    MONGO_URI: str
+
+    # Secret key for general signing
     SECRET_KEY: str
 
-    # Algorithm used for JWT token encoding/decoding
-    ALGORITHM: str = "HS256"
+    # Secret key for JWT token signing
+    JWT_SECRET_KEY: str
 
-    # Token expiration time in minutes
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    # Email ID for notifications or communications
+    EMAILID: str
 
-    # Refresh Token Secret Key
-    REFRESH_SECRET_KEY: str
-
-    # Expiry time for the refresh token
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 40
+    # Email password associated with the email ID
+    EMAILPS: str
 
     class Config:
         # Specify the environment file to load variables from

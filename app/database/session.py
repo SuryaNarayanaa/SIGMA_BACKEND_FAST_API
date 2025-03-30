@@ -8,8 +8,9 @@ class Database:
 async def connect_to_mongo():
     """Create database connection."""
     logger.info("Connecting to MongoDB Atlas...")
-    Database.client = AsyncIOMotorClient(settings.MONGODB_URI)
-    Database.db = Database.client[settings.DB_NAME]
+    Database.client = AsyncIOMotorClient(settings.MONGO_URI)
+    # Connect to the default database as specified in the MONGO_URI
+    Database.db = Database.client.get_default_database()
     logger.info("Connected to MongoDB Atlas.")
 
 async def close_mongo_connection():
