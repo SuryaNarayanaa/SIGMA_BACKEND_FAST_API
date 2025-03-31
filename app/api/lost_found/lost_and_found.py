@@ -5,7 +5,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from pytz import timezone
 
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import  JSONResponse
 from fastapi import Depends
 from fastapi import Form, UploadFile, File
 
@@ -85,7 +85,8 @@ async def raise_lost_item(
         }
 
         # Insert the document into MongoDB
-        if await db.lostandfound.insert_one(lost_item):
+        result = await db.lostandfound.insert_one(lost_item)
+        if result.acknowledged:
 
             return JSONResponse(
                 content={
