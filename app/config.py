@@ -38,9 +38,9 @@ class Settings(BaseSettings):
         - MONGO_URI: Complete MongoDB connection URI (includes database name).
         - SECRET_KEY: Secret key for general signing.
         - JWT_SECRET_KEY: Secret key for JWT token signing.
-        - EMAILID: Email ID for notifications or communications.
-        - EMAILPS: Email password associated with the email ID.
         - JWT_ACCESS_TOKEN_EXPIRES: Expiration time for JWT access tokens.
+        - ALGORITHM: Algorithm used for cryptographic operations (e.g., signing tokens).
+        - BASE_URL: Base URL of the application.
     """
     # MongoDB connection URI (includes database name)
     MONGO_URI: str
@@ -50,12 +50,6 @@ class Settings(BaseSettings):
 
     # Secret key for JWT token signing
     JWT_SECRET_KEY: str
-
-    # Email ID for notifications or communications
-    EMAILID: str
-
-    # Email password associated with the email ID
-    EMAILPS: str
 
     # JWT access token expiration (default is 1 day)
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(days=1)
