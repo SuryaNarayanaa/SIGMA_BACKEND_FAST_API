@@ -7,6 +7,7 @@ from app.database.session import get_db
 from app.api.tasks import tasks_router
 from app.utils.email_utils import render_template, url_for
 from app.utils.issue_utils import resolve_issue, add_comment
+from fastapi import Query
 from app.schemas.tasks.managementSchema import (
                                                 TasksIssueCloseRequest,
                                                 TasksIssueOpenRequest,
@@ -14,9 +15,8 @@ from app.schemas.tasks.managementSchema import (
                                                 )
 
 
-
 @tasks_router.post("/status/{code}", response_class=JSONResponse, tags=["Task Management"])
-async def issue_status_description(code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
+async def issue_status_description(code: str, mod: str = None, db: AsyncIOMotorDatabase = Depends(get_db)):
 
     issues = await db.dataset.find({"issueNo": code}).to_list(length=None)
 
@@ -26,6 +26,12 @@ async def issue_status_description(code: str, db:AsyncIOMotorDatabase = Depends(
     # Convert ObjectId to string for each issue and handle anonymity
     for issue in issues:
         issue["_id"] = str(issue["_id"])
+        
+        # Check if mod parameter is set to "1" and anonymity is "true"
+        if issue.get("anonymity") == "true" and mod == "1":
+            issue["anonymity"] = "false"
+        
+        # Apply anonymization only if still needed
         if issue.get("anonymity") == "true":
             if "raised_by" in issue and "name" in issue["raised_by"]:
                 issue["raised_by"]["name"] = "Anonymous"
@@ -72,9 +78,8 @@ async def issue_add_comment(input_data:TasksIssueAddCommentRequest, code:str, db
     else:
         return JSONResponse({"message": "Failed to add comment"}, status_code=500)
 
-
-@tasks_router.get("/export/{code}",response_class=HTMLResponse, tags=["Tasks Management"])
-async def issue_status_export(code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
+@tasks_router.get("/export/{code}", response_class=HTMLResponse, tags=["Tasks Management"])
+async def issue_status_export(code: str, mod: str = None, db: AsyncIOMotorDatabase = Depends(get_db)):
 
     issue = await db.dataset.find_one({"issueNo": code})
 
@@ -84,9 +89,13 @@ async def issue_status_export(code: str, db:AsyncIOMotorDatabase = Depends(get_d
     # Convert ObjectId to string for JSON serialization
     issue["_id"] = str(issue["_id"])
 
-    #Anonymize the raised by name
+    # Check if mod parameter is set to "1" and anonymity is "true"
+    if issue.get("anonymity") == "true" and mod == "1":
+        issue["anonymity"] = "false"
+    
+    # Apply anonymization only if still needed
     if issue.get("anonymity") == "true":
         if "raised_by" in issue and "name" in issue["raised_by"]:
             issue["raised_by"]["name"] = "Anonymous"
         
-    return render_template("issue_report.html", url_for = url_for,issue=issue)
+    return render_template("issue_report.html", url_for=url_for, issue=issue)
