@@ -15,6 +15,14 @@ def render_template(template_name, **kwargs):
     template = env.get_template(template_name)
     return template.render(**kwargs)
 
+def url_for(endpoint: str, **values):
+    # A simple implementation for the static endpoint
+    if endpoint == "static":
+        filename = values.get("filename", "")
+        return f"/static/{filename}"
+    # Extend for other endpoints if necessary
+    return ""
+
 def sendmail(
     mail_met: Dict[str, str],
     receiver: str,

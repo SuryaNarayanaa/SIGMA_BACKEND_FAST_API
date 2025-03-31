@@ -1,18 +1,38 @@
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi import Depends
 
-from datetime import datetime, timedelta
 from motor.motor_asyncio import  AsyncIOMotorDatabase
 
 from app.database.session import get_db
 from app.api.tasks import tasks_router
+from app.utils.email_utils import render_template, url_for
 from app.utils.issue_utils import resolve_issue, add_comment
 from app.schemas.tasks.managementSchema import (
                                                 TasksIssueCloseRequest,
                                                 TasksIssueOpenRequest,
                                                 TasksIssueAddCommentRequest,
                                                 )
-@tasks_router.get("/close/{code}", response_class=JSONResponse, tags=["Tasks Management"])
+
+
+
+@tasks_router.post("/status/{code}", response_class=JSONResponse, tags=["Task Management"])
+async def issue_status_description(code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
+
+    issues = await db.dataset.find({"issueNo": code}).to_list(length=None)
+
+    if not issues:
+        return JSONResponse({"message": "Issue not found"}, status_code=404)
+    
+    # Convert ObjectId to string for each issue and handle anonymity
+    for issue in issues:
+        issue["_id"] = str(issue["_id"])
+        if issue.get("anonymity") == "true":
+            if "raised_by" in issue and "name" in issue["raised_by"]:
+                issue["raised_by"]["name"] = "Anonymous"
+    
+    return JSONResponse({"issues": issues}, status_code=200)
+
+@tasks_router.post("/close/{code}", response_class=JSONResponse, tags=["Tasks Management"])
 async def issue_close(input_data:TasksIssueCloseRequest, code:str, db: AsyncIOMotorDatabase = Depends(get_db)):
     id = input_data.user_id.lower()
     if not id:
@@ -24,7 +44,7 @@ async def issue_close(input_data:TasksIssueCloseRequest, code:str, db: AsyncIOMo
     else:
         return JSONResponse({"message": "Failed to close issue"}, status_code=500)
 
-@tasks_router.get("/open/{code}", response_class=JSONResponse, tags=["Tasks Management"])
+@tasks_router.post("/open/{code}", response_class=JSONResponse, tags=["Tasks Management"])
 async def issue_open(input_data:TasksIssueOpenRequest, code:str, db: AsyncIOMotorDatabase = Depends(get_db)):
     id = input_data.user_id.lower()
     if not id:
@@ -36,7 +56,7 @@ async def issue_open(input_data:TasksIssueOpenRequest, code:str, db: AsyncIOMoto
     else:
         return JSONResponse({"message": "Failed to open issue"}, status_code=500)
 
-@tasks_router.get("/add-comment/{code}", response_class=JSONResponse, tags=["Tasks Management"])
+@tasks_router.post("/add-comment/{code}", response_class=JSONResponse, tags=["Tasks Management"])
 async def issue_add_comment(input_data:TasksIssueAddCommentRequest, code:str, db: AsyncIOMotorDatabase = Depends(get_db)):
     id = input_data.user_id.lower()
     content = input_data.content
@@ -51,3 +71,22 @@ async def issue_add_comment(input_data:TasksIssueAddCommentRequest, code:str, db
         return JSONResponse({"message": "Comment added successfully"}, status_code=200)
     else:
         return JSONResponse({"message": "Failed to add comment"}, status_code=500)
+
+
+@tasks_router.get("/export/{code}",response_class=HTMLResponse, tags=["Tasks Management"])
+async def issue_status_export(code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
+
+    issue = await db.dataset.find_one({"issueNo": code})
+
+    if not issue:
+        return JSONResponse({"message": "Issue not found"}, status_code=404)
+    
+    # Convert ObjectId to string for JSON serialization
+    issue["_id"] = str(issue["_id"])
+
+    #Anonymize the raised by name
+    if issue.get("anonymity") == "true":
+        if "raised_by" in issue and "name" in issue["raised_by"]:
+            issue["raised_by"]["name"] = "Anonymous"
+        
+    return render_template("issue_report.html", url_for = url_for,issue=issue)

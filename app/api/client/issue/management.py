@@ -171,16 +171,19 @@ async def issue_status(input_data: ClientIssueStatusRequest, db:AsyncIOMotorData
 async def client_issue_status_description(code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
     issue = await db.dataset.find_one({"issueNo": code})
 
-    if issue:
-        issue["_id"] = str(issue["_id"])
-    
-        # Example logic to handle anonymity based on request context (replace with your actual logic)
-        if issue.get("anonymity") == "true":
-            issue["raised_by"]["name"] = "Anonymous"
-    
-        return JSONResponse({"issue": issue})
+    issues = await db.dataset.find({"issueNo": code}).to_list(length=None)
 
-    return JSONResponse({"message": "Issue not found"}, status_code=404)
+    if not issues:
+        return JSONResponse({"message": "Issue not found"}, status_code=404)
+    
+    # Convert ObjectId to string for each issue and handle anonymity
+    for issue in issues:
+        issue["_id"] = str(issue["_id"])
+        if issue.get("anonymity") == "true":
+            if "raised_by" in issue and "name" in issue["raised_by"]:
+                issue["raised_by"]["name"] = "Anonymous"
+    
+    return JSONResponse({"issues": issues}, status_code=200)
 
 @client_issue_router.post("/add-comment/{code}", response_class=JSONResponse, tags=["Issue Management"])
 async def client_issue_add_comment(input_data: ClientIssueAddCommentRequest , code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
