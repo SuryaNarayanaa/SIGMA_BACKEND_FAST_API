@@ -16,7 +16,7 @@ from app.utils.email_utils import notify_hod_or_club, department_hod
 from app.utils.qr_utils import readb64, qr_decoder
 from app.utils.issue_utils import createIssue, add_comment, resolve_issue
 
-from app.schemas.client.issue.management import (
+from app.schemas.client.issue.managementSchema import (
                                                 ClientAssignIssueRequest, 
                                                 ClientIssueAddCommentRequest,
                                                 ClientIssueCloseRequest,

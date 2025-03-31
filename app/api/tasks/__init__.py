@@ -1,7 +1,4 @@
 from fastapi import APIRouter
 
-task_router = APIRouter(prefix="/tasks")
-from app.api.tasks import overview
-
-
-
+tasks_router = APIRouter(prefix="/tasks")
+from app.api.tasks import overview, management

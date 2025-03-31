@@ -1,4 +1,3 @@
-from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi import Depends
 
@@ -6,11 +5,11 @@ from datetime import datetime, timedelta
 from motor.motor_asyncio import  AsyncIOMotorDatabase
 
 from app.database.session import get_db
-from app.api.tasks import task_router
+from app.api.tasks import tasks_router
 
 
 
-@task_router.get("/", response_class= JSONResponse)
+@tasks_router.get("/", response_class= JSONResponse, tags=["Tasks Overview"])
 async def get_all_issues(db: AsyncIOMotorDatabase = Depends(get_db)):
 
     # Use projection to exclude _id field directly in the query
@@ -19,7 +18,7 @@ async def get_all_issues(db: AsyncIOMotorDatabase = Depends(get_db)):
     return JSONResponse(content={"issues": issues}, status_code=200)
 
 
-@task_router.get("/count", response_class= JSONResponse)
+@tasks_router.get("/count", response_class= JSONResponse, tags=["Tasks Overview"])
 async def count_issues(db: AsyncIOMotorDatabase = Depends(get_db)):
 
     current_date = datetime.now()
@@ -109,7 +108,7 @@ async def count_issues(db: AsyncIOMotorDatabase = Depends(get_db)):
     return JSONResponse(content=response_content, status_code=200)
 
 
-@task_router.get("/todo", response_class= JSONResponse)
+@tasks_router.get("/todo", response_class= JSONResponse, tags=["Tasks Overview"])
 async def task_list_table(db: AsyncIOMotorDatabase = Depends(get_db)):
     pipeline = [
         {
