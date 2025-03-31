@@ -1,5 +1,5 @@
 import uuid
-import json
+
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
@@ -18,10 +18,7 @@ from bson import ObjectId
 
 class RemoveLostItemRequest(BaseModel):
     item_id: str
-
-
-
-
+    
 
 @lost_and_found_router.post("/raise_lost_item", response_class=JSONResponse)
 async def raise_lost_item(
