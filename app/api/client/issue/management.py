@@ -285,7 +285,8 @@ async def client_get_similar_issues(input_data: ClientSimilarIssuesRequest , db:
                                     "vars": {
                                         "firstContent": {"$arrayElemAt": ["$$firstComment.content", 0]}
                                     },
-                                    "in": "$$firstContent.content"
+                                    "in": "$$firstContent.content" #+ "in": "$$firstComment.content"
+
                                 }
                             },
                             "No comments available"
