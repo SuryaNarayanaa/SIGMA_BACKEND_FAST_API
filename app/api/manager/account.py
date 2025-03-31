@@ -90,31 +90,15 @@ async def generate_pdf(params: DateRangeParams = Depends(), db: AsyncIOMotorData
                     "$lte": to_date.isoformat(),
                 }
             }
-        },
-        {
-            "$facet": {
-                "statusCounts": [
-                    {"$group": {"_id": "$status", "count": {"$sum": 1}}},
-                ],
-                "categories": [
-                    {"$group": {"_id": "$issue.issueCat", "count": {"$sum": 1}}},
-                ],
-                "allIssues": [
-                    {"$project": {"status": 1, "issue.issueCat": 1, "log": 1}}
-                ]
-            }
         }
     ]
 
-    result = await db.dataset.aggregate(pipeline).to_list(length=1)
-    if not result or not result[0]["allIssues"]:
-        raise HTTPException(status_code=404, detail="No available issues in the given range.")
+    result = await db.dataset.aggregate(pipeline).to_list(length=None)
+ 
 
-    # Process aggregated results
-    result = result[0]
-    issues = result["allIssues"]
+    # Process aggregated result
 
-    buffer = await generate_pdf_utility(from_date, to_date, issues, db)
+    buffer = await generate_pdf_utility(from_date, to_date, result,db)
     return Response(buffer.getvalue(), 
                     media_type="application/pdf", 
                     headers={"Content-Disposition": "inline;filename=dynamic_report.pdf"})

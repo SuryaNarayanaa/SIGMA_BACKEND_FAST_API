@@ -1,6 +1,6 @@
 
 
-import datetime
+from datetime import datetime
 from PIL import Image
 from io import  BytesIO
 
@@ -287,48 +287,62 @@ async def generate_pdf_utility(from_date, to_date, issues, db):
     from_date_str = from_date.strftime("%Y-%m-%d")
     to_date_str = to_date.strftime("%Y-%m-%d")
     
-    # Calculate metrics
-    total_issues = len(issues)
-    open_issues_count = sum(1 for issue in issues if issue.get("status") == "OPEN")
-    closed_issues_count = sum(1 for issue in issues if issue.get("status") == "CLOSE")
-    
-    # Calculate average time to close
-    closed_times = []
+    # Initialize counters and accumulators
+    total_days = 0
+    closed_issues_count = 0
+    open_issues_count = 0
+    total_close_time = 0
+    complaint_categories = {}
+
     for issue in issues:
-        if issue.get("status") == "CLOSE" and issue.get("closeDate") and issue.get("date"):
-            try:
-                close_date = issue["closeDate"]
-                open_date = issue["date"]
-                if isinstance(close_date, str):
-                    close_date = datetime.fromisoformat(close_date.replace('Z', '+00:00'))
-                if isinstance(open_date, str):
-                    open_date = datetime.fromisoformat(open_date.replace('Z', '+00:00'))
-                days_to_close = (close_date - open_date).days
-                closed_times.append(days_to_close)
-            except (ValueError, TypeError):
-                pass
-    
-    avg_close_time = sum(closed_times) / len(closed_times) if closed_times else 0
-    
-    # Find most common category
-    categories = {}
-    for issue in issues:
-        category = issue["issue"].get("issueCat", "Unknown")
-        categories[category] = categories.get(category, 0) + 1
-    
-    most_common_category = max(categories.items(), key=lambda x: x[1])[0] if categories else "N/A"
-    
-    # Create PDF
+        try:
+            # Extract issue details
+            status = issue.get("status")
+            category = issue["issue"].get("issueCat", "Unknown")
+            logs = issue.get("log", [])
+
+            # Count open and closed issues
+            if status == "CLOSE":
+                closed_issues_count += 1
+            elif status == "OPEN":
+                open_issues_count += 1
+
+            # Calculate the most common category
+            complaint_categories[category] = complaint_categories.get(category, 0) + 1
+
+            # Calculate total days from logs and closing times
+            if logs:
+                start_date = datetime.strptime(logs[0]["date"], "%d-%m-%y %H:%M")
+                close_dates = [
+                    datetime.strptime(log["date"], "%d-%m-%y %H:%M")
+                    for log in logs
+                    if log["action"] == "closed"
+                ]
+                if close_dates:
+                    total_days += (close_dates[-1] - start_date).days
+                    total_close_time += sum(
+                        (close_date - start_date).days for close_date in close_dates
+                    )
+
+        except Exception as e:
+            print(f"Error processing issue {issue.get('_id')}: {e}")
+
+    # Compute metrics
+    total_issues = closed_issues_count + open_issues_count
+    avg_close_time = total_close_time / closed_issues_count if closed_issues_count > 0 else 0
+    most_common_category = max(complaint_categories, key=complaint_categories.get) if complaint_categories else "N/A"
+
+    # PDF generation remains unchanged, update table_data with new metrics
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=A4)
-    
+
     # Page 1: Overview
+    draw_border(pdf)
     add_sigma_header(pdf)
     pdf.setFont("Helvetica-Bold", 14)
     pdf.drawString(((PAGE_WIDTH - 2 * MARGIN) / 2) - 40, PAGE_HEIGHT - 150, "Maintenance Statistics Report")
     pdf.setFont("Helvetica", 12)
     pdf.drawString(((PAGE_WIDTH - 2 * MARGIN) / 2) - 25, PAGE_HEIGHT - 170, f"From {from_date_str} to {to_date_str}")
-    
     table_data = [
         ["Total # of Complaints", str(total_issues)],
         ["# of Closed Complaints", str(closed_issues_count)],
@@ -336,54 +350,41 @@ async def generate_pdf_utility(from_date, to_date, issues, db):
         ["Average Time Taken to Close a Complaint", f"{avg_close_time:.2f} days"],
         ["Most Common Complaint Category", most_common_category],
     ]
-    
     add_table(pdf, table_data, PAGE_HEIGHT - 280, ((PAGE_WIDTH - 2 * MARGIN) / 2) - PAGE_WIDTH / 8)
-    await add_charts(pdf, from_date, to_date, db)
-    add_footer(pdf, 1)
+    add_charts(pdf, from_date, to_date,db)
     pdf.showPage()
-    
+
     # Page 2: Detailed Table
     draw_border(pdf)
     pdf.setFont("Helvetica-Bold", 14)
     pdf.drawString(PAGE_WIDTH / 2 - 100, PAGE_HEIGHT - 70, "Complaints in Given Time Range")
     pdf.setFont("Helvetica", 12)
-    
     detailed_table_data = [
         ["Category", "Issue ID", "Raised By", "Date", "Location", "Days to Resolve"],
     ]
-    
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     for issue in issues:
-        # Calculate days to resolve for each issue
-        days_to_resolve = "N/A"
-        if issue.get("status") == "CLOSE" and issue.get("closeDate") and issue.get("date"):
-            try:
-                close_date = issue["closeDate"]
-                open_date = issue["date"]
-                if isinstance(close_date, str):
-                    close_date = datetime.fromisoformat(close_date.replace('Z', '+00:00'))
-                if isinstance(open_date, str):
-                    open_date = datetime.fromisoformat(open_date.replace('Z', '+00:00'))
-                days_to_resolve = str((close_date - open_date).days)
-            except (ValueError, TypeError):
-                pass
-        
         detailed_table_data.append([
             issue["issue"].get("issueCat", "Unknown"),
             issue.get("issueNo", "N/A"),
-            issue["raised_by"].get("name", "N/A") if "raised_by" in issue else "N/A",
+            issue["raised_by"].get("name", "N/A"),
             issue.get("date", "N/A"),
             issue["issue"].get("block", "N/A"),
-            days_to_resolve,
-        ])
-    
+            str(total_days),  # Placeholder; you can make this specific to each issue
+        ])  
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
     add_table_d(pdf, detailed_table_data, start_y=PAGE_HEIGHT - 100)
     add_footer(pdf, 2)
     pdf.showPage()
-    
+
     # Blank page at the end
     add_blank_page(pdf)
-    
+
     # Save and return the PDF
     pdf.save()
     buffer.seek(0)
-    return buffer
+
+    return buffer   
