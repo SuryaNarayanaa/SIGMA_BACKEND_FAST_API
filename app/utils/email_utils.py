@@ -128,3 +128,36 @@ def notify_hod_or_club(
         )
 
     #print(f"Email sent to: {', '.join(recipients)}")
+
+
+def department_hod(department):
+    map = {
+        "Apparel & Fashion Design": "22n228@psgtech.ac.in", # hod.afd@psgtech
+        "Applied Mathematics & Computational Sciences": "hod.amcs@psgtech",
+        "Applied Science": "hod.apsc@psgtech",
+        "Automobile Engineering": "snk.auto@psgtech",
+        "Biotechnology": "mas.bio@psgtech",
+        "Biomedical Engineering": "rvp.bme@psgtech",
+        "Chemistry": "ctr.chem@psgtech",
+        "Civil Engineering": "hod.civil@psgtech",
+        "Computer Science & Engineering": "hod.cse@psgtech",
+        "Electronics & Communication Engineering": "vk.ece@psgtech",
+        "Electrical & Electronics Engineering": "jkr.eee@psgtech",
+        "English": "hod.english@psgtech",
+        "Fashion Technology": "kcs.fashion@psgtech",
+        "Humanities": "hod.hum@psgtech",
+        "Instrumentation & Control Systems Engineering": "jas.ice@psgtech",
+        "Information Technology": "hod.it@psgtech",
+        "Mathematics": "cpg.maths@psgtech",
+        "Computer Applications": "ac.mca@psgtech",
+        "Mechanical Engineering": "prt.mech@psgtech",
+        "Metallurgical Engineering": "jkm.metal@psgtech",
+        "Physics": "ksk.phy@psgtech",
+        "Production Engineering": "msk.prod@psgtech",
+        "Robotics & Automation Engineering": "hod.rae@psgtech",
+        "Textile Technology": "hod.textile@psgtech"
+    }
+    return  map.get(department, None)
+
+
+
