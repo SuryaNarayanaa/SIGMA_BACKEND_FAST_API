@@ -4,6 +4,8 @@ from datetime import datetime
 from pytz import timezone
 
 from fastapi import Depends
+from fastapi import APIRouter
+
 from fastapi.responses import JSONResponse
 from motor.motor_asyncio import  AsyncIOMotorDatabase
 
@@ -26,7 +28,7 @@ from app.schemas.client.issue.management import (
                                                 )
 
 
-
+client_issue_management_router =APIRouter()
 
 
 @client_issue_router.post("/report", response_class=JSONResponse, tags=["Issue Management"])
@@ -56,9 +58,9 @@ async def report_issue(input_data: ClientIssueReportRequest , db:AsyncIOMotorDat
     survey: dict[str, str] = {}
     for k, v in input_data.model_dump().items():
         if k.startswith("survey-") and isinstance(v, str):
-            name = k.replace("survey-", "").replace("-", " ")
-            name = " ".join(word.capitalize() for word in name.split(" "))
-            survey[name] = v
+            survey_label = k.replace("survey-", "").replace("-", " ")
+            survey_label = " ".join(word.capitalize() for word in survey_label.split(" "))
+            survey[survey_label] = v
     issue_data = {
         "name": name,
         "id": id,
@@ -85,7 +87,7 @@ async def report_issue(input_data: ClientIssueReportRequest , db:AsyncIOMotorDat
     return JSONResponse({"message": "Issue reported successfully", "issue_id": issue_id}, status_code=201)
 
 
-@client_issue_router.post("/assign_issue", response_class=JSONResponse)
+@client_issue_management_router.post("/assign_issue", response_class=JSONResponse)
 async def assign_issue(input_data: ClientAssignIssueRequest, db:AsyncIOMotorDatabase = Depends(get_db)):
     issue_no = input_data.issueNo
     assignee = input_data.assignee
@@ -237,14 +239,12 @@ async def report_issue_qr(input_data: ClientIssueReportQrRequest , db:AsyncIOMot
         return JSONResponse({"qr_result": qr_result}, status_code=200)
     
     except Exception as e:
-        return JSONResponse({"message": str(e)}, status_code=5000)
+        return JSONResponse({"message": str(e)}, status_code=500)
     
-@client_issue_router.post("/get_similar_issues", response_class=JSONResponse, tags=["Issue Management"])
+@client_issue_management_router.post("/get_similar_issues", response_class=JSONResponse)
 async def client_get_similar_issues(input_data: ClientSimilarIssuesRequest , db:AsyncIOMotorDatabase = Depends(get_db)):
     block = input_data.block
     floor = input_data.floor
-    today_date = datetime.now(timezone("Asia/Kolkata")).strftime("%d/%m/%y")
-
     if not block:
         return JSONResponse({"message": "block is required"}, status_code=400)
     
