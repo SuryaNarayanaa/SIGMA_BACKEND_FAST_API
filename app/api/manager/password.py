@@ -27,7 +27,7 @@ async def manager_reset_password(
     request: ResetPasswordRequest, 
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    user = await db.personnel.find_one({"id": request.id.lower()})
+    user = await db.personnel.find_one({"id": request.id})
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -48,7 +48,7 @@ async def manager_forgot_password(
     request: ForgotPasswordRequest,
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    user_id = request.id.lower()
+    user_id = request.id
     user = await db.personnel.find_one({"id": user_id})
 
     if not user:
@@ -59,7 +59,7 @@ async def manager_forgot_password(
     
     await sendmail(
         mail_met={"type": "reset_password"},
-        receiver=f"{user_id}@psgtech.ac.in",
+        receiver=f"{user_id}",
         subject="[PSG-GMS-SIGMA] Reset Your Password",
         short_subject="Reset Your Password",
         text=f"""Dear {user['name']},

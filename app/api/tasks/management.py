@@ -40,7 +40,7 @@ async def issue_status_description(code: str, mod: str = None, db: AsyncIOMotorD
 
 @tasks_router.post("/close/{code}", response_class=JSONResponse, tags=["Tasks Management"])
 async def issue_close(input_data:TasksIssueCloseRequest, code:str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.user_id.lower()
+    id = input_data.user_id
     if not id:
         return JSONResponse({"message": "User ID is required"}, status_code=400)
     
@@ -52,7 +52,7 @@ async def issue_close(input_data:TasksIssueCloseRequest, code:str, db: AsyncIOMo
 
 @tasks_router.post("/open/{code}", response_class=JSONResponse, tags=["Tasks Management"])
 async def issue_open(input_data:TasksIssueOpenRequest, code:str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.user_id.lower()
+    id = input_data.user_id
     if not id:
         return JSONResponse({"message": "User ID is required"}, status_code=400)
     

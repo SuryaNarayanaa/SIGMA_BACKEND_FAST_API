@@ -18,7 +18,7 @@ from app.schemas.manager.authSchema import ManagerRegisterRequest, ManagerLoginR
 async def manager_register(input_data: ManagerRegisterRequest , db :AsyncIOMotorDatabase = Depends(get_db)):
 
     name = input_data.name
-    id = input_data.id.lower()
+    id = input_data.id
     password = input_data.password
 
     if not name or not id or not password:
@@ -35,7 +35,7 @@ async def manager_register(input_data: ManagerRegisterRequest , db :AsyncIOMotor
     confirmation_link = f"{settings.BASE_URL}/Manager/confirm/{confirm_key}"
     sendmail(
         mail_met={"type": "welcome"},
-        receiver=f"{id}@psgtech.ac.in",
+        receiver=f"{id}",
         subject="[PSG-GMS-SIGMA] Welcome!",
         short_subject="Welcome!",
         text=f"""Dear {name},
@@ -91,7 +91,7 @@ async def manager_confirm_email(confkey: str, db: AsyncIOMotorDatabase = Depends
     name = user["name"]
     sendmail(
         mail_met={"type": "welcome"},
-        receiver=f"{id}@psgtech.ac.in",
+        receiver=f"{id}",
         subject="[PSG-GMS-SIGMA] E-Mail Confirmed. Welcome!",
         short_subject="Your E-Mail has been Confirmed!",
         text=f"""Dear {name},
@@ -105,11 +105,11 @@ async def manager_confirm_email(confkey: str, db: AsyncIOMotorDatabase = Depends
     for mod in mods:
         sendmail(
             mail_met={"type": "welcome"},
-            receiver=f"{mod['id']}@psgtech.ac.in",
+            receiver=f"{mod['id']}",
             subject="[PSG-GMS-SIGMA] Approve New Manager - Registration",
             short_subject="Please Approve New Manager - Registration to the System",
             text=f"""Dear {mod["name"]},
-            <br/>{name} [{id}@psgtech.ac.in] has registered as a maintenance staff under the "SIGMA" General Maintenance Software by PSG College of Technology. Please, as a moderator, approve the user, so {name} can start using the application!
+            <br/>{name} [{id}] has registered as a maintenance staff under the "SIGMA" General Maintenance Software by PSG College of Technology. Please, as a moderator, approve the user, so {name} can start using the application!
             <br/><br/>
             <a style="text-decoration:none;background-color: #2A4BAA;font-size: 20px;border: none;color: white;border-radius: 10px;padding-top: 10px;padding-bottom: 10px;padding-left: 30px;padding-right: 30px;" href="{settings.BASE_URL}/manager/approve/{mod_key}">Approve User</a>
             <br/><br
@@ -156,11 +156,11 @@ async def manager_approve_email(confkey: str, db: AsyncIOMotorDatabase = Depends
     for mod in mods:
         sendmail(
             mail_met={"type": "welcome"},
-            receiver=f"{mod['id']}@psgtech.ac.in",
+            receiver=f"{mod['id']}",
             subject="[PSG-GMS-SIGMA] Approve New Manager - Registration",
             short_subject="Please Approve New Manager - Registration to the System",
             text=f"""Dear {mod["name"]},
-            <br/>{name} [{id}@psgtech.ac.in] has been approved as a maintenance staff under the "SIGMA" General Maintenance Software by PSG College of Technology. If you wish for {name} to be a moderator, please escalate user privileges by clicking this button:
+            <br/>{name} [{id}] has been approved as a maintenance staff under the "SIGMA" General Maintenance Software by PSG College of Technology. If you wish for {name} to be a moderator, please escalate user privileges by clicking this button:
             <br/><br/>
             <a style="text-decoration:none;background-color: #2A4BAA;font-size: 20px;border: none;color: white;border-radius: 10px;padding-top: 10px;padding-bottom: 10px;padding-left: 30px;padding-right: 30px;" href="{settings.BASE_URL}/manager/escalate/{mod_key}">Escalate User</a>
             <br/><br/>
@@ -172,7 +172,7 @@ async def manager_approve_email(confkey: str, db: AsyncIOMotorDatabase = Depends
 
     sendmail(
         mail_met={"type": "welcome"},
-        receiver=f"{id}@psgtech.ac.in",
+        receiver=f"{id}",
         subject="[PSG-GMS-SIGMA] Log-In Account Approved. Welcome!",
         short_subject="Your Log-In Account has been Approved!",
         text=f"""Dear {name},
@@ -188,7 +188,7 @@ async def manager_approve_email(confkey: str, db: AsyncIOMotorDatabase = Depends
 
 @manager_router.delete("/reject/{user_id}" , response_class=JSONResponse, tags=["Manager - Registration & Authentication"] )
 async def reject_user(user_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    user = db.personnel.find_one({"id": user_id.lower()})
+    user = db.personnel.find_one({"id": user_id})
 
     if not user:
         return JSONResponse({"message": "User not found"},status_code=400)
@@ -203,7 +203,7 @@ async def reject_user(user_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
 
     sendmail(
         mail_met={"type": "rejection"},
-        receiver=f"{user_id}@psgtech.ac.in",
+        receiver=f"{user_id}",
         subject="[PSG-GMS-SIGMA] Manager - Registration Rejected",
         short_subject="Manager - Registration Rejected",
         text=rejection_message,
@@ -219,7 +219,7 @@ async def reject_user(user_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
 
 @manager_router.post("/login" , response_class=JSONResponse, tags=["Manager - Registration & Authentication"] )
 async def Manager_login(input_data: ManagerLoginRequest , db: AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.id.lower()
+    id = input_data.id
     password = input_data.password
     if not id:
         return JSONResponse({"message": "ID is required"},status_code=400)

@@ -33,7 +33,7 @@ client_issue_management_router =APIRouter()
 
 @client_issue_router.post("/report", response_class=JSONResponse, tags=["Issue Management"])
 async def report_issue(input_data: ClientIssueReportRequest , db:AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.id.lower()
+    id = input_data.id
     name = input_data.name
     issue_type = input_data.issueType
     issue_cat = input_data.issueCat
@@ -128,7 +128,7 @@ async def assign_issue(input_data: ClientAssignIssueRequest, db:AsyncIOMotorData
 
 @client_issue_router.post("/status", response_class=JSONResponse, tags=["Issue Management"])
 async def issue_status(input_data: ClientIssueStatusRequest, db:AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.user_id.lower()
+    id = input_data.user_id
     if not id:
         return JSONResponse({"status": "error", "message": "ID is required"}, status_code=400)
     
@@ -187,7 +187,7 @@ async def client_issue_status_description(code: str, db:AsyncIOMotorDatabase = D
 
 @client_issue_router.post("/add-comment/{code}", response_class=JSONResponse, tags=["Issue Management"])
 async def client_issue_add_comment(input_data: ClientIssueAddCommentRequest , code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.user_id.lower()
+    id = input_data.user_id
     content = input_data.content
 
     if not id:
@@ -203,7 +203,7 @@ async def client_issue_add_comment(input_data: ClientIssueAddCommentRequest , co
     
 @client_issue_router.post("/close/{code}", response_class=JSONResponse, tags=["Issue Management"])
 async def client_issue_close(input_data: ClientIssueCloseRequest , code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.user_id.lower()
+    id = input_data.user_id
     if not id:
         return JSONResponse({"message": "User ID is required"}, status_code=400)
     
@@ -215,7 +215,7 @@ async def client_issue_close(input_data: ClientIssueCloseRequest , code: str, db
 
 @client_issue_router.post("/open/{code}", response_class=JSONResponse, tags=["Issue Management"])
 async def client_issue_open(input_data: ClientIssueOpenRequest , code: str, db:AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.user_id.lower()
+    id = input_data.user_id
     if not id:
         return JSONResponse({"message": "User ID is required"}, status_code=400)
     
@@ -227,7 +227,7 @@ async def client_issue_open(input_data: ClientIssueOpenRequest , code: str, db:A
 
 @client_issue_router.post("/report/qr", response_class=JSONResponse, tags=["Issue Management"])
 async def report_issue_qr(input_data: ClientIssueReportQrRequest , db:AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.id.lower()
+    id = input_data.id
     file_data = input_data.file
 
     if not id:

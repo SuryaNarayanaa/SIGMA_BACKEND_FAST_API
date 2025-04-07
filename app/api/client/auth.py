@@ -18,7 +18,7 @@ from app.schemas.client.authSchema import ClientRegisterRequest, ClientLoginRequ
 async def client_register(input_data: ClientRegisterRequest , db :AsyncIOMotorDatabase = Depends(get_db)):
 
     name = input_data.name
-    id = input_data.id.lower()
+    id = input_data.id
     password = input_data.password
     phone_number = input_data.phone_number
     club = input_data.club
@@ -39,7 +39,7 @@ async def client_register(input_data: ClientRegisterRequest , db :AsyncIOMotorDa
     confirmation_link = f"{settings.BASE_URL}/client/confirm/{confirm_key}"
     sendmail(
         mail_met={"type": "welcome"},
-        receiver=f"{id}@psgtech.ac.in",
+        receiver=f"{id}",
         subject="[PSG-GMS-SIGMA] Welcome!",
         short_subject="Welcome!",
         text=f"""Dear {name},
@@ -92,7 +92,7 @@ async def client_confirm_email(confirm_key: str, db: AsyncIOMotorDatabase = Depe
 
 @client_router.post("/login" , response_class=JSONResponse, tags=["Registration & Authentication"] )
 async def client_login(input_data: ClientLoginRequest , db: AsyncIOMotorDatabase = Depends(get_db)):
-    id = input_data.id.lower()
+    id = input_data.id
     password = input_data.password
     if not id:
         return JSONResponse({"message": "ID is required"},status_code=400)

@@ -15,7 +15,7 @@ from app.utils.pdf_utils import generate_pdf_utility
 # Endpoints
 @manager_router.post("/delete")
 async def manager_delete(request: DeleteUserRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
-    user_id = request.id.lower()
+    user_id = request.id
     
     if not user_id:
         return JSONResponse(content={"message": "ID required"}, status_code=400)

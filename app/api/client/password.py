@@ -16,7 +16,7 @@ from motor.motor_asyncio import  AsyncIOMotorDatabase
 
 @client_router.post("/reset_password", response_class=JSONResponse, tags=["Password Management"])
 async def client_reset_password(input_data: ClientResetPasswordReqeust , db: AsyncIOMotorDatabase = Depends(get_db) ):
-    id = input_data.id.lower()
+    id = input_data.id
     old_password = input_data.old_password
     new_password = input_data.new_password
 
@@ -55,7 +55,7 @@ async def client_reset_password(input_data: ClientResetPasswordReqeust , db: Asy
 
 @client_router.post("/forgot_password", response_class=JSONResponse, tags=["Password Management"])
 async def client_forgot_password(input_data: ClientForgotPasswordRequest , db: AsyncIOMotorDatabase = Depends(get_db) ):
-    id  =input_data.id.lower()
+    id  =input_data.id
     if not id:
         return JSONResponse(
             status_code=400,
@@ -71,7 +71,7 @@ async def client_forgot_password(input_data: ClientForgotPasswordRequest , db: A
     reset_link = f"{settings.BASE_URL}/client/reset/{reset_key}"
     sendmail(
     mail_met={"type": "reset_password"},
-    receiver=f"{id}@psgtech.ac.in",
+    receiver=f"{id}",
     subject="[PSG-GMS-SIGMA] Reset Your Password",
     short_subject="Reset Your Password",
     text=f"""Dear {user['name']},

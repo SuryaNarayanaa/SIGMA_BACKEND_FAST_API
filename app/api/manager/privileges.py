@@ -45,7 +45,7 @@ async def manager_escalate_email(modkey: str, db: AsyncIOMotorDatabase = Depends
     # Send email notification
     sendmail(
         {"type": "welcome"},
-        f"{id}@psgtech.ac.in",
+        f"{id}",
         "[PSG-GMS-SIGMA] Privileges Escalated to Moderator Status!",
         "Congrats! You have been Assigned to Moderator Status with Account Approval Privileges!",
         f"""Dear {name},
