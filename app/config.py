@@ -56,7 +56,12 @@ class Settings(BaseSettings):
 
     ALGORITHM :str
 
-    BASE_URL :str = "https://sigma-api-r7ao.onrender.com"
+    BASE_URL :str 
+
+    EMAILID :str 
+    
+    EMAILPS :str 
+
 
 
     class Config:
